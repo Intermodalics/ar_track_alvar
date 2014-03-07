@@ -50,7 +50,7 @@
 namespace gm=geometry_msgs;
 namespace ata=ar_track_alvar;
 
-//#define MARKERS_FOR_DEBUGGING
+//#define DEBUG_OUTPUT_ACTIVE
 
 typedef pcl::PointXYZRGB ARPoint;
 typedef pcl::PointCloud<ARPoint> ARCloud;
@@ -87,7 +87,7 @@ std::string cam_info_topic;
 std::string output_frame;
 
 //Debugging utility function
-#ifdef MARKERS_FOR_DEBUGGING
+#ifdef DEBUG_OUTPUT_ACTIVE
 void draw3dPoints(ARCloud::Ptr cloud, string frame, int color, int id, double rad)
 {
   visualization_msgs::Marker rvizMarker;
@@ -196,7 +196,7 @@ int PlaneFitPoseImprovement(int id, const ARCloud &corners_3D, ARCloud::Ptr sele
   pose.header.frame_id = cloud.header.frame_id;
   pose.pose.position = ata::centroid(*res.inliers);
 
-#ifdef MARKERS_FOR_DEBUGGING
+#ifdef DEBUG_OUTPUT_ACTIVE
   draw3dPoints(selected_points, cloud.header.frame_id, 1, id, 0.005);
 #endif
 
@@ -240,7 +240,7 @@ int PlaneFitPoseImprovement(int id, const ARCloud &corners_3D, ARCloud::Ptr sele
     i4 = 0;
   }
 
-#ifdef MARKERS_FOR_DEBUGGING
+#ifdef DEBUG_OUTPUT_ACTIVE
   ARCloud::Ptr orient_points(new ARCloud());
   orient_points->points.push_back(corners_3D[i1]);
   draw3dPoints(orient_points, cloud.header.frame_id, 3, id+1000, 0.008);
@@ -254,7 +254,7 @@ int PlaneFitPoseImprovement(int id, const ARCloud &corners_3D, ARCloud::Ptr sele
   succ = ata::extractOrientation(res.coeffs, corners_3D[i1], corners_3D[i2], corners_3D[i3], corners_3D[i4], pose.pose.orientation);
   if(succ < 0) return -1;
 
-#ifdef MARKERS_FOR_DEBUGGING
+#ifdef DEBUG_OUTPUT_ACTIVE
   tf::Matrix3x3 mat;
   succ = ata::extractFrame(res.coeffs, corners_3D[i1], corners_3D[i2], corners_3D[i3], corners_3D[i4], mat);
   if(succ < 0) return -1;
@@ -327,7 +327,7 @@ void GetMarkerPoses(IplImage *image, ARCloud &cloud) {
 	  ARCloud::Ptr selected_points = ata::filterCloud(cloud, pixels);
 
 	  //Use the kinect data to find a plane and pose for the marker
-	  int ret = PlaneFitPoseImprovement(i, m->ros_corners_3D, selected_points, cloud, m->pose);	
+	  int ret = PlaneFitPoseImprovement(i, m->ros_corners_3D, selected_points, cloud, m->pose);
 	}
     }
 }
@@ -413,7 +413,7 @@ void getPointCloudCallback (const sensor_msgs::PointCloud2ConstPtr &msg)
 	  tf::StampedTransform camToMarker (t, image_msg->header.stamp, image_msg->header.frame_id, markerFrame.c_str());
 	  tf_broadcaster->sendTransform(camToMarker);
 
-#ifdef MARKERS_FOR_DEBUGGING
+#ifdef DEBUG_OUTPUT_ACTIVE
 	  //Create the rviz visualization messages
 	  tf::poseTFToMsg (markerPose, rvizMarker_.pose);
 	  rvizMarker_.header.frame_id = image_msg->header.frame_id;
@@ -541,7 +541,7 @@ int main(int argc, char *argv[])
   tf_broadcaster = new tf::TransformBroadcaster();
   negativeImage_ = n.advertise < sensor_msgs::Image> ("ar_negative_image", 0);
   arMarkerPub_ = n.advertise < ar_track_alvar::AlvarMarkers > ("ar_pose_marker", 0);
-#ifdef MARKERS_FOR_DEBUGGING
+#ifdef DEBUG_OUTPUT_ACTIVE
   rvizMarkerPub_ = n.advertise < visualization_msgs::Marker > ("visualization_marker", 0);
   rvizMarkerPub2_ = n.advertise < visualization_msgs::Marker > ("ARmarker_points", 0);
 #endif
