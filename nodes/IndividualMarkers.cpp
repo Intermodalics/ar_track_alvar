@@ -67,12 +67,15 @@ ros::Subscriber cloud_sub_;
 ros::Publisher arMarkerPub_;
 ros::Publisher rvizMarkerPub_;
 ros::Publisher rvizMarkerPub2_;
+ros::Publisher negativeImage_;
+
 ar_track_alvar::AlvarMarkers arPoseMarkers_;
 visualization_msgs::Marker rvizMarker_;
 tf::TransformListener *tf_listener;
 tf::TransformBroadcaster *tf_broadcaster;
 MarkerDetector<MarkerData> marker_detector;
 
+bool UseNegativeImage = true;
 bool enableSwitched = false;
 bool enabled = true;
 double max_frequency;
@@ -347,6 +350,13 @@ void getPointCloudCallback (const sensor_msgs::PointCloud2ConstPtr &msg)
     // do this conversion here -jbinney
     IplImage ipl_image = cv_ptr_->image;
 
+    //Create a negative image from source image
+    if (UseNegativeImage){
+    	cvNot(&ipl_image,&ipl_image);
+    }
+
+    // The following line has been tested and works fine!
+    negativeImage_.publish( cv_ptr_->toImageMsg() );
 
     //Use the kinect to improve the pose
     Pose ret_pose;
@@ -519,6 +529,7 @@ int main(int argc, char *argv[])
   cam = new Camera(n, cam_info_topic);
   tf_listener = new tf::TransformListener(n);
   tf_broadcaster = new tf::TransformBroadcaster();
+  negativeImage_ = n.advertise < sensor_msgs::Image> ("ar_negative_image", 0);
   arMarkerPub_ = n.advertise < ar_track_alvar::AlvarMarkers > ("ar_pose_marker", 0);
 #ifdef MARKERS_FOR_DEBUGGING
   rvizMarkerPub_ = n.advertise < visualization_msgs::Marker > ("visualization_marker", 0);
