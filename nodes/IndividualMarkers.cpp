@@ -75,7 +75,6 @@ tf::TransformListener *tf_listener;
 tf::TransformBroadcaster *tf_broadcaster;
 MarkerDetector<MarkerData> marker_detector;
 
-bool UseNegativeImage = true;
 bool enableSwitched = false;
 bool enabled = true;
 double max_frequency;
@@ -85,6 +84,8 @@ double max_track_error;
 std::string cam_image_topic; 
 std::string cam_info_topic; 
 std::string output_frame;
+bool negative_image = false;
+bool depth_for_improvement = true;
 
 //Debugging utility function
 #ifdef DEBUG_OUTPUT_ACTIVE
@@ -279,7 +280,7 @@ void GetMarkerPoses(IplImage *image, ARCloud &cloud) {
 
   //Detect and track the markers
   if (marker_detector.Detect(image, cam, true, false, max_new_marker_error,
-			     max_track_error, CVSEQ, true)) 
+			     max_track_error, CVSEQ, true) && depth_for_improvement)
     {
 
 /*	  std::string log = "Visible markers: ";
@@ -361,11 +362,11 @@ void getPointCloudCallback (const sensor_msgs::PointCloud2ConstPtr &msg)
     IplImage ipl_image = cv_ptr_->image;
 
     //Create a negative image from source image
-    if (UseNegativeImage){
+    if (negative_image){
     	cvNot(&ipl_image,&ipl_image);
     }
 
-    // The following line has been tested and works fine!
+    // Publish the negative image
     negativeImage_.publish( cv_ptr_->toImageMsg() );
 
     //Use the kinect to improve the pose
@@ -500,6 +501,10 @@ void configCallback(ar_track_alvar::ParamsConfig &config, uint32_t level)
   marker_size = config.marker_size;
   max_new_marker_error = config.max_new_marker_error;
   max_track_error = config.max_track_error;
+
+  negative_image = config.negative_image;
+  depth_for_improvement = config.depth_for_improvement;
+
 }
 
 int main(int argc, char *argv[])
