@@ -70,6 +70,7 @@ double max_track_error;
 std::string cam_image_topic; 
 std::string cam_info_topic; 
 std::string output_frame;
+bool UseNegativeImage = false;
 
 void getCapCallback (const sensor_msgs::ImageConstPtr & image_msg);
 
@@ -98,6 +99,11 @@ void getCapCallback (const sensor_msgs::ImageConstPtr & image_msg)
             // us a cv::Mat. I'm too lazy to change to cv::Mat throughout right now, so I
             // do this conversion here -jbinney
             IplImage ipl_image = cv_ptr_->image;
+
+            //Create a negative image from source image
+            if (UseNegativeImage){
+            	cvNot(&ipl_image,&ipl_image);
+            }
 
             marker_detector.Detect(&ipl_image, cam, true, false, max_new_marker_error, max_track_error, CVSEQ, true);
 
