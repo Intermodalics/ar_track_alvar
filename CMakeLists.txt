@@ -20,13 +20,12 @@ find_package(catkin COMPONENTS
         message_generation
         ${MSG_DEPS}
         dynamic_reconfigure
+        cmake_modules
         REQUIRED)
 
 find_package(Eigen REQUIRED)
 find_package(OpenCV REQUIRED)
-
-find_package(PkgConfig)
-pkg_check_modules(PC_TINYXML REQUIRED tinyxml)
+find_package(TinyXML REQUIRED)
 
 # generate messages
 set(MSG_FILES AlvarMarker.msg AlvarMarkers.msg)
@@ -57,10 +56,9 @@ catkin_package(
 )
 
 include_directories(include 
-                    ${PC_TINYXML_INCLUDE_DIRS}
                     ${catkin_INCLUDE_DIRS}
                     ${OpenCV_INCLUDE_DIRS}
-                    ${PC_TINYXML_INCLUDE_DIRS}
+                    ${TinyXML_INCLUDE_DIRS}
 
 )
 
@@ -97,16 +95,18 @@ add_library(ar_track_alvar
     src/MultiMarker.cpp
     src/MultiMarkerBundle.cpp
     src/MultiMarkerInitializer.cpp)
-target_link_libraries(ar_track_alvar ${OpenCV_LIBS} tinyxml ${catkin_LIBRARIES})
+target_link_libraries(ar_track_alvar ${OpenCV_LIBS} ${TinyXML_LIBRARIES} ${catkin_LIBRARIES})
 add_dependencies(ar_track_alvar ${GENCPP_DEPS})
 
 # Kinect filtering code
+set(KINECT_FILTERING_TARGETS kinect_filtering medianFilter)
+
 add_library(kinect_filtering src/kinect_filtering.cpp)
 target_link_libraries(kinect_filtering ${catkin_LIBRARIES})
 add_dependencies(kinect_filtering ${GENCPP_DEPS})
 
 add_library(medianFilter src/medianFilter.cpp)
-target_link_libraries(medianFilter ${catkin_LIBRARIES})
+target_link_libraries(medianFilter ar_track_alvar ${catkin_LIBRARIES})
 add_dependencies(medianFilter ${GENCPP_DEPS})
 
 set(ALVAR_TARGETS ar_track_alvar individualMarkers individualMarkersNoKinect trainMarkerBundle findMarkerBundles findMarkerBundlesNoKinect createMarker ar_track_alvar)
@@ -135,7 +135,7 @@ add_executable(createMarker src/SampleMarkerCreator.cpp)
 target_link_libraries(createMarker ar_track_alvar ${catkin_LIBRARIES})
 add_dependencies(createMarker ${PROJECT_NAME}_gencpp ${GENCPP_DEPS})
 
-install(TARGETS ${ALVAR_TARGETS}
+install(TARGETS ${ALVAR_TARGETS} ${KINECT_FILTERING_TARGETS}
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
