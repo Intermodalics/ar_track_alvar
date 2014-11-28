@@ -70,7 +70,7 @@ ros::Publisher rvizMarkerPub_;
 ros::Publisher rvizMarkerPub2_;
 ros::Publisher negativeImage_;
 
-ar_track_alvar::AlvarMarkers arPoseMarkers_;
+ar_track_alvar_msgs::AlvarMarkers arPoseMarkers_;
 visualization_msgs::Marker rvizMarker_;
 tf::TransformListener *tf_listener;
 tf::TransformBroadcaster *tf_broadcaster;
@@ -546,7 +546,7 @@ int main(int argc, char *argv[])
   tf_listener = new tf::TransformListener(n);
   tf_broadcaster = new tf::TransformBroadcaster();
   negativeImage_ = n.advertise < sensor_msgs::Image> ("ar_negative_image", 0);
-  arMarkerPub_ = n.advertise < ar_track_alvar::AlvarMarkers > ("ar_pose_marker", 0);
+  arMarkerPub_ = n.advertise < ar_track_alvar_msgs::AlvarMarkers > ("ar_pose_marker", 0);
 #ifdef DEBUG_OUTPUT_ACTIVE
   rvizMarkerPub_ = n.advertise < visualization_msgs::Marker > ("visualization_marker", 0);
   rvizMarkerPub2_ = n.advertise < visualization_msgs::Marker > ("ARmarker_points", 0);
