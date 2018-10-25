@@ -75,6 +75,18 @@ namespace ar_track_alvar
     return res;
   }
 
+  ARCloud::Ptr projectCloudInPlane(ARCloud::ConstPtr cloud, pcl::ModelCoefficients::ConstPtr plane_coeffs) {
+    ARCloud::Ptr projected_cloud(new ARCloud());
+
+    pcl::ProjectInliers<ARPoint> proj;
+    proj.setModelType(pcl::SACMODEL_PLANE);
+    proj.setInputCloud(cloud);
+    proj.setModelCoefficients(plane_coeffs);
+    proj.filter(*projected_cloud);
+
+    return projected_cloud;
+  }
+
   ARCloud::Ptr filterCloud (const ARCloud& cloud, const vector<cv::Point, Eigen::aligned_allocator<cv::Point> >& pixels)
   {
     ARCloud::Ptr out(new ARCloud());
