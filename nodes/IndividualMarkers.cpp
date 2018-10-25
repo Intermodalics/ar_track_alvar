@@ -194,7 +194,32 @@ int PlaneFitPoseImprovement(int id, const ARCloud &corners_3D, ARCloud::Ptr sele
   gm::PoseStamped pose;
   pose.header.stamp = pcl_conversions::fromPCL(cloud.header).stamp;
   pose.header.frame_id = cloud.header.frame_id;
-  pose.pose.position = ata::centroid(*res.inliers);
+
+  // Project 3D corners to plane
+  if (res.coeffs.values.size() < 4) {
+    ROS_DEBUG_STREAM("Invalid number of plane coefficients.");
+    return -1;
+  }
+
+  ARCloud::Ptr corners_3D_ptr(new ARCloud());
+  *corners_3D_ptr = corners_3D;
+  pcl::ModelCoefficients::Ptr coeffs_ptr(new pcl::ModelCoefficients ());
+  *coeffs_ptr = res.coeffs;
+  ARCloud::Ptr projected_corners_3D = ata::projectCloudInPlane(corners_3D_ptr, coeffs_ptr);
+
+  // Compute center of projected corners
+  pose.pose.position.x = (projected_corners_3D->points[0].x +
+                          projected_corners_3D->points[1].x +
+                          projected_corners_3D->points[2].x +
+                          projected_corners_3D->points[3].x) / 4.0;
+  pose.pose.position.y = (projected_corners_3D->points[0].y +
+                          projected_corners_3D->points[1].y +
+                          projected_corners_3D->points[2].y +
+                          projected_corners_3D->points[3].y) / 4.0;
+  pose.pose.position.z = (projected_corners_3D->points[0].z +
+                          projected_corners_3D->points[1].z +
+                          projected_corners_3D->points[2].z +
+                          projected_corners_3D->points[3].z) / 4.0;
 
   draw3dPoints(selected_points, cloud.header.frame_id, 1, id, 0.005);
 
