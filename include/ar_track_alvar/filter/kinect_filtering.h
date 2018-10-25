@@ -53,6 +53,7 @@
 #include <pcl/segmentation/sac_segmentation.h>
 #include <pcl_ros/point_cloud.h>
 #include <pcl/filters/extract_indices.h>
+#include <pcl/filters/project_inliers.h>
 #include <boost/lexical_cast.hpp>
 #include <Eigen/StdVector>
 
@@ -81,6 +82,9 @@ ARCloud::Ptr filterCloud (const ARCloud& cloud,
 
 // Wrapper for PCL plane fitting
 PlaneFitResult fitPlane (ARCloud::ConstPtr cloud);
+
+// Project cloud in plane
+ARCloud::Ptr projectCloudInPlane(ARCloud::ConstPtr cloud, pcl::ModelCoefficients::ConstPtr plane_coeffs);
 
 // Given the coefficients of a plane, and two points p1 and p2, we produce a 
 // quaternion q that sends p2'-p1' to (1,0,0) and n to (0,0,1), where p1' and
