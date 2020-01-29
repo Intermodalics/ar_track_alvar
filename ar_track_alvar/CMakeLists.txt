@@ -134,7 +134,7 @@ target_link_libraries(trainMarkerBundle ar_track_alvar ${catkin_LIBRARIES})
 add_dependencies(trainMarkerBundle ${PROJECT_NAME}_gencpp ${GENCPP_DEPS})
 
 add_executable(findMarkerBundles nodes/FindMarkerBundles.cpp)
-target_link_libraries(findMarkerBundles ar_track_alvar kinect_filtering medianFilter ${catkin_LIBRARIES})
+target_link_libraries(findMarkerBundles kinect_filtering medianFilter ar_track_alvar ${catkin_LIBRARIES})
 add_dependencies(findMarkerBundles ${PROJECT_NAME}_gencpp ${GENCPP_DEPS})
 
 add_executable(findMarkerBundlesNoKinect nodes/FindMarkerBundlesNoKinect.cpp)
