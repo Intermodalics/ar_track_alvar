@@ -37,8 +37,7 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
-#include <cxcore.h>
-#include <cv.h>
+#include <opencv2/core.hpp>
 #include <cmath> //for abs
 #include <map>
 #include <opencv2/calib3d/calib3d_c.h> //Compatibility with OpenCV 3.x
