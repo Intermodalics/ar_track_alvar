@@ -28,21 +28,6 @@ find_package(Eigen3 REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(TinyXML REQUIRED)
 
-include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
-CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
-
-if(COMPILER_SUPPORTS_CXX14)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-elseif(COMPILER_SUPPORTS_CXX11)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-elseif(COMPILER_SUPPORTS_CXX0X)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-else()
-        message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
-endif()
-
 cmake_policy(SET CMP0046 OLD)
 
 # dynamic reconfigure support
@@ -69,7 +54,7 @@ catkin_package(
         dynamic_reconfigure
 )
 
-include_directories(include 
+include_directories(include
                     ${catkin_INCLUDE_DIRS}
                     ${OpenCV_INCLUDE_DIRS}
                     ${TinyXML_INCLUDE_DIRS}
@@ -165,12 +150,12 @@ install(DIRECTORY launch bundles
 
 if (CATKIN_ENABLE_TESTING)
   find_package(catkin REQUIRED COMPONENTS roslaunch rostest)
-  
+
   file(GLOB LAUNCH_FILES launch/*.launch test/*.test)
   foreach(LAUNCH_FILE ${LAUNCH_FILES})
     roslaunch_add_file_check(${LAUNCH_FILE} USE_TEST_DEPENDENCIES)
   endforeach()
-  
+
   catkin_download_test_data(
     ${PROJECT_NAME}_4markers_tork.bag
     http://download.ros.org/data/ar_track_alvar/ar_track_alvar_4markers_tork_2017-02-08-11-21-14.bag
